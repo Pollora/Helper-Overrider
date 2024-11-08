@@ -30,7 +30,7 @@
     },
     "minimum-stability": "dev",
     "extra": {
-        "class": "Pollora\\Composer\\HelperLoader",
+        "class": "Pollora\\HelperOverrider\\Plugin\\HelperLoader",
         "plugin-modifies-downloads": true
     }
 }
