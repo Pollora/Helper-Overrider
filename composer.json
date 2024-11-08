@@ -31,11 +31,6 @@
     "minimum-stability": "dev",
     "extra": {
         "class": "Pollora\\Composer\\HelperLoader",
-        "plugin-modifies-downloads": true,
-        "laravel": {
-            "providers": [
-                "Pollora\\Providers\\PolloraServiceProvider"
-            ],
-        }
-    },
+        "plugin-modifies-downloads": true
+    }
 }
