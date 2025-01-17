@@ -9,7 +9,7 @@
             "role": "Developer"
         }
     ],
-    "type": "composer-plugin",
+    "type": "package",
     "repositories": [
         {
             "type": "composer",
