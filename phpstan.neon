@@ -1,0 +1,15 @@
+parameters:
+    level: 9
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - vendor/*
+    ignoreErrors:
+        # WordPress core functions are only present at runtime, behind the
+        # function_exists() guards in CoreWordPressTranslator.
+        - identifier: function.notFound
+          path: src/Translation/CoreWordPressTranslator.php
+        # Pest's functional API resolves $this to the underlying TestCase.
+        - '#Undefined variable: \$this#'
+    reportUnmatchedIgnoredErrors: false

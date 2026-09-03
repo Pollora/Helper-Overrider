@@ -1,6 +1,6 @@
 {
     "name": "pollora/helper-overrider",
-    "description": "Override some Laravel helpers",
+    "description": "Overrides Laravel and WordPress translation helpers so a single __() serves both catalogues",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
@@ -10,19 +10,55 @@
         }
     ],
     "type": "package",
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://wpackagist.org"
-        }
-    ],
     "require": {
-        "php": "^8.2.0"
+        "php": "^8.3"
+    },
+    "require-dev": {
+        "driftingly/rector-laravel": "^2.3",
+        "laravel/framework": "^12.0|^13.0",
+        "laravel/pint": "^1.22",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^3.8",
+        "phpstan/phpstan": "^2.1",
+        "rector/rector": "^2.0"
     },
     "autoload": {
+        "psr-4": {
+            "Pollora\\HelperOverrider\\": "src/"
+        },
         "files": [
             "src/helpers.php"
         ]
     },
-    "minimum-stability": "dev"
+    "autoload-dev": {
+        "psr-4": {
+            "Pollora\\HelperOverrider\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "lint": "pint",
+        "refacto": "rector",
+        "test": [
+            "@test:lint",
+            "@test:refacto",
+            "@test:types",
+            "@test:unit"
+        ],
+        "test:coverage": "pest --coverage",
+        "test:lint": "pint --test",
+        "test:refacto": "rector --dry-run",
+        "test:types": "phpstan analyse --ansi --no-progress",
+        "test:unit": "pest --colors=always"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "suggest": {
+        "illuminate/translation": "Required for the Laravel side of __(); provided by laravel/framework in a Pollora application."
+    }
 }
