@@ -119,28 +119,6 @@ describe('an empty array second argument is ambiguous', function (): void {
     });
 });
 
-describe('the wordpress. prefix opts a key out of Laravel', function (): void {
-    it('skips the Laravel lookup entirely and strips the prefix', function (): void {
-        $laravel = new FakeLaravelTranslator(['en_US' => ['wordpress.Save' => 'Laravel line']]);
-        $wordpress = new FakeWordPressTranslator(['default' => ['Save' => 'WordPress line']]);
-
-        $result = (new TranslationResolver($laravel, $wordpress))->translate('wordpress.Save');
-
-        expect($result)->toBe('WordPress line')
-            ->and($laravel->lookups)->toBe([]);
-    });
-
-    // A plain str_replace() rewrote the substring wherever it appeared.
-    it('only strips the prefix, never a match inside the string', function (): void {
-        $wordpress = new FakeWordPressTranslator;
-
-        (new TranslationResolver(new FakeLaravelTranslator, $wordpress))
-            ->translate('Go to wordpress.org');
-
-        expect($wordpress->lookups)->toBe([['Go to wordpress.org', 'default']]);
-    });
-});
-
 describe('locale resolution', function (): void {
     it('asks WordPress for the locale when none is given', function (): void {
         $laravel = new FakeLaravelTranslator;

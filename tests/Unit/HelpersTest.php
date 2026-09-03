@@ -90,13 +90,6 @@ it('prefers Laravel over the WordPress default domain for a bare call', function
     expect(translateHelper('Save'))->toBe('Laravel line');
 });
 
-it('forces the WordPress catalogue through the wordpress. prefix', function (): void {
-    bootTranslator(['en_US' => ['wordpress.Save' => 'Laravel line']]);
-    WordPressState::$catalogue = ['default' => ['Save' => 'WordPress line']];
-
-    expect(translateHelper('wordpress.Save'))->toBe('WordPress line');
-});
-
 it('always returns a string, even for a Laravel group key', function (): void {
     bootTranslator(groups: ['en_US' => ['validation' => ['required' => 'Required']]]);
 

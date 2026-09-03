@@ -18,16 +18,15 @@ namespace Pollora\HelperOverrider\Translation;
  *   the only genuinely ambiguous case, and the only one where both catalogues
  *   are consulted.
  *
- * A key can be forced onto the WordPress side by prefixing it with
- * `wordpress.`, which is stripped before the gettext lookup.
+ * There is deliberately no escape hatch to force a key onto one side or the
+ * other beyond passing the matching second-argument shape: a magic key prefix
+ * would be invisible to gettext extraction tools (`wp i18n make-pot`, Poedit),
+ * which read the literal `__()` argument, not what this class does with it
+ * afterwards — a translator would translate a `msgid` that never matches what
+ * the runtime actually looks up.
  */
 final readonly class TranslationResolver
 {
-    /**
-     * Prefix that opts a key out of the Laravel catalogue.
-     */
-    private const string WORDPRESS_PREFIX = 'wordpress.';
-
     /**
      * WordPress's fallback text domain, used whenever the caller names none.
      */
@@ -75,7 +74,7 @@ final readonly class TranslationResolver
      */
     private function fromLaravel(string $key, array $replace, ?string $locale): ?string
     {
-        if (str_starts_with($key, self::WORDPRESS_PREFIX) || ! $this->laravel->isAvailable()) {
+        if (! $this->laravel->isAvailable()) {
             return null;
         }
 
@@ -98,12 +97,6 @@ final readonly class TranslationResolver
      */
     private function fromWordPress(string $key, string $domain): string
     {
-        // Anchored to the start: a plain str_replace() would also rewrite
-        // "Go to wordpress.org" into "Go to org".
-        if (str_starts_with($key, self::WORDPRESS_PREFIX)) {
-            $key = substr($key, strlen(self::WORDPRESS_PREFIX));
-        }
-
         return $this->wordpress->translate($key, $domain);
     }
 

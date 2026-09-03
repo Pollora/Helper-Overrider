@@ -33,7 +33,14 @@ them apart.
 | `__('Some string')` | Laravel, then WordPress `default` | No intent expressed. The only ambiguous case, and the only one where both are consulted. |
 | `__('Some string', 'my-plugin')` | WordPress, `my-plugin` domain | A text domain is an explicit WordPress call. Laravel is never consulted, so an unrelated key of the same name cannot shadow a plugin's catalogue. |
 | `__('Shipping :brand', ['brand' => 'X'])` | Laravel, then WordPress `default` — placeholders filled either way | Named replacements are a Laravel idiom. WordPress has no named placeholders: a `msgid` uses `%s`, substituted by `sprintf()` at the call site. |
-| `__('wordpress.Some string')` | WordPress `default`, prefix stripped | Escape hatch to force the gettext side. |
+
+There is no key-prefix escape hatch to force one side over the other. A prefix
+like `wordpress.` would be invisible to gettext extraction tools (`wp i18n
+make-pot`, Poedit) — they read the literal `__()` argument, so a translator
+would translate a `msgid` the runtime never actually looks up once the prefix
+is stripped. If you need WordPress specifically, pass its text domain; if you
+need Laravel specifically, pass replacements (even an unused empty one won't
+do — see the ambiguous row above).
 
 For the third row, if the key is absent from the Laravel catalogue the line is
 taken from WordPress — which returns the key verbatim when it knows nothing
