@@ -98,4 +98,4 @@ composer refacto       # apply Rector
 
 ## License
 
-GPL-2.0-or-later
+MIT — see [LICENSE](LICENSE).

@@ -1,7 +1,7 @@
 {
     "name": "pollora/helper-overrider",
     "description": "Overrides Laravel and WordPress translation helpers so a single __() serves both catalogues",
-    "license": "GPL-2.0-or-later",
+    "license": "MIT",
     "authors": [
         {
             "name": "Olivier Gorzalka",
