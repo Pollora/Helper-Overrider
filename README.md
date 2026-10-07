@@ -1,8 +1,44 @@
-# Pollora Helper Overrider
+<p align="center">
+  <a href="https://pollora.dev">
+    <img src="https://raw.githubusercontent.com/Pollora/.github/main/brand/banners/Helper-Overrider.png" width="100%" alt="Pollora Helper Overrider: one __() for Laravel and WordPress translations">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://packagist.org/packages/pollora/helper-overrider"><img src="https://img.shields.io/packagist/v/pollora/helper-overrider" alt="Latest version"></a>
+  <a href="https://packagist.org/packages/pollora/helper-overrider"><img src="https://img.shields.io/packagist/dt/pollora/helper-overrider" alt="Total downloads"></a>
+  <a href="https://github.com/Pollora/Helper-Overrider/actions/workflows/tests.yml"><img src="https://github.com/Pollora/Helper-Overrider/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Pollora/Helper-Overrider" alt="License"></a>
+</p>
 
 Replaces WordPress's `__()` with one that serves **both** the Laravel and the
-WordPress translation catalogues, so a Pollora application can write either
-style and get the right answer.
+WordPress translation catalogs, so a Pollora application can write either
+style and get the right answer. Theme views, config files and WooCommerce
+filters keep calling `__()`, and a plugin's text domain and a Laravel key with
+placeholders both resolve.
+
+> Part of [Pollora](https://pollora.dev), the Laravel framework for WordPress. In a Pollora project it is already installed and loaded: just call `__()`.
+
+## Installation
+
+```bash
+composer require pollora/helper-overrider
+```
+
+You rarely need this line: `pollora/framework` requires the package and ships
+the WordPress core patch it relies on (see below). Outside the framework,
+WordPress's own `__()` must be renamed first, or PHP stops on a duplicate
+function declaration.
+
+The package **must load before `laravel/framework`**, whose `__()` sits behind
+the same `function_exists()` guard: whichever `helpers.php` Composer includes
+first owns the name. That is why it has no Composer dependency at all, as
+explained under [How the override happens](#how-the-override-happens).
+
+Requirements:
+
+- PHP 8.3+
+- Laravel 12 or 13, at runtime (not as a Composer dependency — see below)
 
 ## How the override happens
 
@@ -18,7 +54,7 @@ to `__wp()` (`patches/wordpress-core.patch`, applied through
 > guard, and Composer emits `autoload.files` in dependency order. The package
 > only wins the race while nothing sorts it after `laravel/framework`. Adding an
 > `illuminate/*` entry to `require` fails nothing loudly — `__()` silently
-> becomes Laravel's, and every WordPress catalogue stops resolving. The Laravel
+> becomes Laravel's, and every WordPress catalog stops resolving. The Laravel
 > classes are reached through PSR-4 at call time instead, long after the
 > autoloader is up, and guarded by `class_exists()`. `tests/Unit/OverrideOrderTest.php`
 > is the alarm for this.
@@ -31,7 +67,7 @@ them apart.
 | Call | Routed to | Why |
 |---|---|---|
 | `__('Some string')` | Laravel, then WordPress `default` | No intent expressed. The only ambiguous case, and the only one where both are consulted. |
-| `__('Some string', 'my-plugin')` | WordPress, `my-plugin` domain | A text domain is an explicit WordPress call. Laravel is never consulted, so an unrelated key of the same name cannot shadow a plugin's catalogue. |
+| `__('Some string', 'my-plugin')` | WordPress, `my-plugin` domain | A text domain is an explicit WordPress call. Laravel is never consulted, so an unrelated key of the same name cannot shadow a plugin's catalog. |
 | `__('Shipping :brand', ['brand' => 'X'])` | Laravel, then WordPress `default` — placeholders filled either way | Named replacements are a Laravel idiom. WordPress has no named placeholders: a `msgid` uses `%s`, substituted by `sprintf()` at the call site. |
 
 There is no key-prefix escape hatch to force one side over the other. A prefix
@@ -42,7 +78,7 @@ is stripped. If you need WordPress specifically, pass its text domain; if you
 need Laravel specifically, pass replacements (even an unused empty one won't
 do — see the ambiguous row above).
 
-For the third row, if the key is absent from the Laravel catalogue the line is
+For the third row, if the key is absent from the Laravel catalog the line is
 taken from WordPress — which returns the key verbatim when it knows nothing
 about it — and the named placeholders are filled in regardless. That is what
 keeps `__('Shipping :brand', ['brand' => 'Test'])` from rendering as
@@ -67,7 +103,7 @@ mapping anyway:
 - `_x()` / `_ex()` — Laravel has no notion of a gettext context. Ignoring it
   would collapse two strings distinguished only by context onto one Laravel key.
 - `_n()` / `_nx()` — WordPress takes `(singular, plural, count)` and delegates
-  plural forms to the `.mo` `Plural-Forms` header; Laravel encodes pluralisation
+  plural forms to the `.mo` `Plural-Forms` header; Laravel encodes pluralization
   inside the string and resolves it with `trans_choice()`. Routing `_n()` to
   Laravel would make its `$plural` argument dead and break languages with more
   than two forms.
@@ -76,16 +112,16 @@ mapping anyway:
 
 Per-class handlers registered through `Lang::stringable()` apply on the Laravel
 path but not on the WordPress-fallback path, where such objects fall back to
-`__toString()`. The fallback line comes from a gettext catalogue rather than the
+`__toString()`. The fallback line comes from a gettext catalog rather than the
 Laravel one and must keep working with no application booted, so it substitutes
 placeholders through `ReplacementApplier` rather than through the translator.
 `ReplacementApplierParityTest` diffs that class against a real
 `Illuminate\Translation\Translator` to keep the two in step.
 
-## Requirements
+## Documentation
 
-- PHP 8.3+
-- Laravel 12 or 13, at runtime (not as a Composer dependency — see above)
+How `__()` behaves in a Pollora project, and when to choose `.po`/`.mo` or
+Laravel files: [Translations](https://pollora.dev/core-concepts/translations/).
 
 ## Development
 
@@ -96,6 +132,10 @@ composer lint          # apply Pint
 composer refacto       # apply Rector
 ```
 
+## Contributing
+
+Contributions are welcome: see the [contributing guide](https://github.com/Pollora/.github/blob/main/CONTRIBUTING.md). Report security issues privately, as described in the [security policy](https://github.com/Pollora/.github/blob/main/SECURITY.md).
+
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Pollora Helper Overrider is open-source software licensed under the [MIT license](LICENSE). © [RuBee group](https://rubee.group)
