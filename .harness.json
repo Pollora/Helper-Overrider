@@ -1,0 +1,11 @@
+{
+    "profile": "core",
+    "mode": "enforce",
+    "downstream": [
+        "framework"
+    ],
+    "ratchet": {
+        "phpstan_level": 9,
+        "phpstan_baseline": 0
+    }
+}
