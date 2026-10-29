@@ -1,5 +1,15 @@
+includes:
+    - vendor/pollora/harness/presets/phpstan/base.neon
+
 parameters:
     level: 9
+    # The WordPress stubs declare __(), which laravel/framework (a dev
+    # dependency) has already declared at runtime: scan them instead of
+    # executing them.
+    bootstrapFiles!:
+        - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
+    scanFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
     paths:
         - src
         - tests
@@ -10,6 +20,10 @@ parameters:
         # function_exists() guards in CoreWordPressTranslator.
         - identifier: function.notFound
           path: src/Translation/CoreWordPressTranslator.php
+        # The package's __() accepts Laravel replacements as its second argument;
+        # static analysis resolves the call to the WordPress stub, which does not.
+        - identifier: argument.type
+          path: tests/Fixtures/override-order.php
         # Pest's functional API resolves $this to the underlying TestCase.
         - '#Undefined variable: \$this#'
     reportUnmatchedIgnoredErrors: false

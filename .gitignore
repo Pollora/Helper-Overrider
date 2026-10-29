@@ -2,3 +2,5 @@
 /.phpunit.cache/
 composer.lock
 .phpunit.result.cache
+# Pollora harness reports
+/.harness/
