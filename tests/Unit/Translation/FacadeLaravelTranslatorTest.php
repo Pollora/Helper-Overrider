@@ -103,11 +103,18 @@ describe('a translator that only implements the contract', function (): void {
     {
         return new class implements Translator
         {
+            /**
+             * @param  array<string, mixed>  $replace
+             */
             public function get($key, array $replace = [], $locale = null): string
             {
                 return $key === 'Save' ? 'Enregistrer' : $key;
             }
 
+            /**
+             * @param  array<mixed>|int  $number
+             * @param  array<string, mixed>  $replace
+             */
             public function choice($key, $number, array $replace = [], $locale = null): string
             {
                 return $key;
