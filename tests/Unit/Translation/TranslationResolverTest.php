@@ -197,3 +197,21 @@ describe('availability guards', function (): void {
             ->toBe('Save');
     });
 });
+
+describe('locale candidates', function (): void {
+    it('lets Laravel use its own locale when an empty one is passed explicitly', function (): void {
+        $laravel = new FakeLaravelTranslator;
+
+        (new TranslationResolver($laravel, new FakeWordPressTranslator(locale: 'fr_FR')))->translate('Save', [], '');
+
+        expect($laravel->lookups)->toBe([['Save', null]]);
+    });
+
+    it('does not append an empty base language', function (): void {
+        $laravel = new FakeLaravelTranslator;
+
+        (new TranslationResolver($laravel, new FakeWordPressTranslator))->translate('Save', [], '_FR');
+
+        expect($laravel->lookups)->toBe([['Save', '_FR']]);
+    });
+});

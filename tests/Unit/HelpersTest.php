@@ -101,3 +101,7 @@ it('honours an explicitly passed locale', function (): void {
 
     expect(translateHelper('Save', [], 'de_DE'))->toBe('Speichern');
 });
+
+it('keeps one shared resolver for the whole request', function (): void {
+    expect(pollora_translation_resolver())->toBe(pollora_translation_resolver());
+});

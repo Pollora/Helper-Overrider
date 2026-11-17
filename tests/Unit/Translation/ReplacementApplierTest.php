@@ -99,3 +99,47 @@ it('treats a closure key with regex metacharacters literally', function (): void
 it('accepts integer-like keys', function (): void {
     expect(applier()->apply('Item :0', [0 => 'first']))->toBe('Item first');
 });
+
+it('keeps processing the remaining replacements after a closure span', function (): void {
+    $result = applier()->apply(
+        '<b>bold</b> for :name',
+        ['b' => strtoupper(...), 'name' => 'Olivier'],
+    );
+
+    expect($result)->toBe('BOLD for Olivier');
+});
+
+it('processes several closure spans in one line', function (): void {
+    $result = applier()->apply(
+        '<a>one</a> <b>two</b>',
+        ['a' => strtoupper(...), 'b' => strrev(...)],
+    );
+
+    expect($result)->toBe('ONE owt');
+});
+
+it('casts a closure result to a string', function (): void {
+    $result = applier()->apply('Total <n>x</n>', ['n' => fn (string $text): int => 42]);
+
+    expect($result)->toBe('Total 42');
+});
+
+it('yields an empty line when the closure pattern cannot be evaluated', function (): void {
+    $previous = ini_set('pcre.backtrack_limit', '1');
+
+    try {
+        $result = applier()->apply('<a>'.str_repeat('x', 500).'</a>', ['a' => strtoupper(...)]);
+    } finally {
+        ini_set('pcre.backtrack_limit', (string) $previous);
+    }
+
+    expect($result)->toBe('');
+});
+
+it('renders an object that cannot be stringified as an empty string', function (): void {
+    expect(applier()->apply('Shipping [:brand]', ['brand' => new stdClass]))->toBe('Shipping []');
+});
+
+it('renders an array value as an empty string', function (): void {
+    expect(applier()->apply('Shipping [:brand]', ['brand' => ['a', 'b']]))->toBe('Shipping []');
+});

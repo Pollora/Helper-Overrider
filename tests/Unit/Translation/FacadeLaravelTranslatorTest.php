@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Translation\Translator;
 use Pollora\HelperOverrider\Translation\FacadeLaravelTranslator;
 
 function gateway(): FacadeLaravelTranslator
@@ -95,4 +96,41 @@ it('does not report a WordPress-owned key as a missing Laravel translation', fun
     gateway()->translate('Add to cart', [], 'en_US');
 
     expect($missing)->toBe([]);
+});
+
+describe('a translator that only implements the contract', function (): void {
+    function contractOnlyTranslator(): Translator
+    {
+        return new class implements Translator
+        {
+            public function get($key, array $replace = [], $locale = null): string
+            {
+                return $key === 'Save' ? 'Enregistrer' : $key;
+            }
+
+            public function choice($key, $number, array $replace = [], $locale = null): string
+            {
+                return $key;
+            }
+
+            public function getLocale(): string
+            {
+                return 'en';
+            }
+
+            public function setLocale($locale): void {}
+        };
+    }
+
+    it('returns the line when get() resolves the key', function (): void {
+        bootApplication()->instance('translator', contractOnlyTranslator());
+
+        expect(gateway()->translate('Save', [], 'en'))->toBe('Enregistrer');
+    });
+
+    it('treats a key returned verbatim as missing', function (): void {
+        bootApplication()->instance('translator', contractOnlyTranslator());
+
+        expect(gateway()->translate('Missing', [], 'en'))->toBeNull();
+    });
 });
